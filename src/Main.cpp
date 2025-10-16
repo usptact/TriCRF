@@ -23,7 +23,7 @@
 
 using namespace std;
 
-int main(int argc, void** argv) {
+int main(int argc, char** argv) {
 	////////////////////////////////////////////////////////////////
 	///	 Model
 	////////////////////////////////////////////////////////////////
@@ -34,9 +34,10 @@ int main(int argc, void** argv) {
 	////////////////////////////////////////////////////////////////
 	vector<string> model_file, train_file, dev_file, test_file, output_file;
 	string initialize_method, estimation_method;
-	size_t max_iter, init_iter;
+	size_t max_iter;
+	[[maybe_unused]] size_t init_iter;
 	double l1_prior, l2_prior;
-	enum {MaxEnt = 0, CRF, TriCRF1, TriCRF2, TriCRF3} model_type;
+	[[maybe_unused]] enum {MaxEnt = 0, CRF, TriCRF1, TriCRF2, TriCRF3} model_type;
 	bool train_mode = false, testing_mode = false;
 	bool confidence = false;
 
@@ -45,18 +46,20 @@ int main(int argc, void** argv) {
 	////////////////////////////////////////////////////////////////
 	char config_filename[128];
 	if (argc > 1) {
-		strcpy(config_filename, (char*)argv[1]);
+		strcpy(config_filename, argv[1]);
 	}
 	else {
 		cout << MAX_HEADER;
-		cout << "[Usage] max config_file \n\n";
+		cout << "[Usage] tricrf config_file \n\n";
 		exit(1);		
 	}
 	tricrf::Configurator config(config_filename);
 
 	////////////////////////////////////////////////////////////////
-	///	 Logger
+	///	 Logger - MEMORY MANAGEMENT NOTE
 	////////////////////////////////////////////////////////////////
+	// Logger is allocated dynamically and MUST be cleaned up at program end
+	// to prevent memory leaks. See cleanup section at end of main().
 	tricrf::Logger *log = NULL;
 	if (config.isValid("log_file")) {
 		size_t log_mode = 2;
@@ -68,8 +71,10 @@ int main(int argc, void** argv) {
 	}
 	
 	////////////////////////////////////////////////////////////////
-	///	 Selecting the model
+	///	 Selecting the model - MEMORY MANAGEMENT NOTE
 	////////////////////////////////////////////////////////////////
+	// Model is allocated dynamically and MUST be cleaned up at program end
+	// to prevent memory leaks. See cleanup section at end of main().
 	if (config.isValid("model_type")) {
 		string type_str = config.get("model_type");
 		if (type_str == "MaxEnt" || type_str == "maxent") {
@@ -259,5 +264,14 @@ int main(int argc, void** argv) {
 				model->test(test_file[iter]);
 		}
 	}
+
+	////////////////////////////////////////////////////////////////
+	///	 Cleanup - CRITICAL: Prevent Memory Leaks
+	////////////////////////////////////////////////////////////////
+	// IMPORTANT: Always clean up dynamically allocated objects
+	// These were allocated with 'new' in the model selection section
+	// and must be deallocated to prevent memory leaks
+	delete model;  // Clean up model instance (MaxEnt, CRF, TriCRF1, etc.)
+	delete log;    // Clean up logger instance (if created)
 
 }

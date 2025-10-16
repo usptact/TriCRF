@@ -55,7 +55,7 @@ protected:
 	/// Parameter Estimation
 	virtual bool estimateWithLBFGS(size_t max_iter, double sigma, bool L1 = false, double eta = 1E-05);
 	virtual bool estimateWithPL(size_t max_iter, double sigma, bool L1 = false, double eta = 1E-05);
-	virtual bool averageParam() {};
+	virtual bool averageParam() { return true; };
 	
 	std::vector<std::vector<size_t> > m_Beam;
 	std::vector<std::map<size_t, size_t> > m_BeamMap;

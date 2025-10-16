@@ -138,7 +138,7 @@ void CRF::readTrainData(const string& filename) {
 				size_t index = 0;
 				string fstr(tokens[index]);
 				vector<string> tok = tokenize(fstr, ":");
-				float fval = 1.0;
+				[[maybe_unused]] float fval = 1.0;
 				if (tok.size() > 1) {
 					fval = atof(tok[1].c_str());	///< feature value
 					fstr = tok[0];
@@ -300,7 +300,7 @@ void CRF::calculateFactors(Sequence &seq) {
 	//m_IndexR.resize(m_seq_size-1);
 
 	/// Calculation
-	double a = 0.0;
+		[[maybe_unused]] double a = 0.0;
 	for (size_t i = 0; i < m_seq_size-1; i++) {
 
 		//vector<size_t> &pointer = m_IndexR[i];
@@ -497,8 +497,8 @@ vector<size_t> CRF::viterbiSearch(long double& prob) {
 
 	/// Search
     size_t i, j, k;
-	size_t prev_max_j = m_default_oid;
-	long double prev_maxj = -100000.0;
+		[[maybe_unused]] size_t prev_max_j = m_default_oid;
+	[[maybe_unused]] long double prev_maxj = -100000.0;
 
 	// first node
 	/*
@@ -636,17 +636,17 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 	/// Training iteration
 	m_Param.makeActiveIndex(0.0);
 
-    for (size_t niter = 0 ;niter < (int)max_iter; ++niter) {
+    for (size_t niter = 0 ;niter < max_iter; ++niter) {
 		
 		/// Initializing local variables
         timer t2;	///< elapsed time for one iteration
 		m_Param.initializeGradient();	///< gradient vector initialization
 		eval.initialize();	///< evaluator intialization
-		double time_for_inference = 0.0;
-		double time_for_inference2 = 0.0;
-		double time_for_factor = 0.0;
-		double time_for_estimation = 0.0;
-		double time_for_viterbi = 0.0;
+		[[maybe_unused]] double time_for_inference = 0.0;
+		[[maybe_unused]] double time_for_inference2 = 0.0;
+		[[maybe_unused]] double time_for_factor = 0.0;
+		[[maybe_unused]] double time_for_estimation = 0.0;
+		[[maybe_unused]] double time_for_viterbi = 0.0;
 		timer time_for_fb;
 
 		
@@ -670,7 +670,7 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 			stop_watch.restart();
 			backward();
 			time_for_inference2 += stop_watch.elapsed();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
 			
 			/// Evaluation
 			stop_watch.restart();
@@ -680,7 +680,7 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 
 			// calculate Y sequence
 			long double y_seq_prob = calculateProb(*sit);
-            if (!finite((double)y_seq_prob)) {
+            if (!std::isfinite((double)y_seq_prob)) {
                 cerr << "calculateProb:" << y_seq_prob << endl;
             }
 			
@@ -702,10 +702,10 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 			reverse(prod_scale2.begin(), prod_scale2.end());
 
 			stop_watch.restart();
-			size_t prev_outcome = 0;
+						[[maybe_unused]] size_t prev_outcome = 0;
 			size_t i = 0;
 			for (; it != sit->end(); ++it, ++i) {	 /// for each node
-				size_t outcome = it->label;
+				[[maybe_unused]] size_t outcome = it->label;
 				reference.push_back(it->label);
 				hypothesis.push_back(y_seq[i]);
 
@@ -786,7 +786,7 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 		Evaluator dev_eval(m_Param);		///< Evaluator (sequence)
 		dev_eval.initialize();	///< evaluator intialization
 		timer stop_watch;
-		double time_for_dev = 0.0;
+		[[maybe_unused]] double time_for_dev = 0.0;
 		/// for each dev data
         sit = m_DevSet.begin();
 		count_it = m_DevSetCount.begin();
@@ -795,7 +795,7 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 			double count = *count_it;
 			calculateFactors(*sit);
   			forward();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
             long double dummy_prob;
 			vector<size_t> y_seq = viterbiSearch(dummy_prob);
 			assert(y_seq.size() == sit->size());
@@ -813,7 +813,7 @@ bool CRF::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double eta) 
 		time_for_dev = stop_watch.elapsed();
 		
 		/// applying regularization
-		size_t n_nonzero = 0;
+		[[maybe_unused]] size_t n_nonzero = 0;
 		if (sigma) {
 			if (L1) { /// L1 regularization
 				for (size_t i = 0; i < m_Param.size(); ++i) {
@@ -894,7 +894,7 @@ bool CRF::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta) {
 	int converge = 0;
 
 	/// Training iteration
-    for (size_t niter = 0 ;niter < (int)max_iter; ++niter) {
+    for (size_t niter = 0 ;niter < max_iter; ++niter) {
 		
 		/// Initializing local variables
         timer t2;	///< elapsed time for one iteration
@@ -999,7 +999,7 @@ bool CRF::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta) {
 		dev_eval.initialize();	///< evaluator intialization
 		
 		/// applying regularization
-		size_t n_nonzero = 0;
+		[[maybe_unused]] size_t n_nonzero = 0;
 		if (sigma) {
 			if (L1) { /// L1 regularization
 				for (size_t i = 0; i < m_Param.size(); ++i) {
@@ -1066,7 +1066,7 @@ void CRF::evals(Sequence seq, std::vector<std::string> &output, std::vector<long
 	calculateFactors(seq);
 	forward();
 
-	long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
     long double dummy_prob;
 	vector<size_t> y_seq = viterbiSearch(dummy_prob);
 	assert(y_seq.size() == seq.size());
@@ -1090,7 +1090,7 @@ void CRF::eval(Sequence seq, std::vector<std::string> &output, long double &prob
 	calculateFactors(seq);
 	forward();
 
-	long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
     long double dummy_prob;
 	vector<size_t> y_seq = viterbiSearch(dummy_prob);
 	assert(y_seq.size() == seq.size());
@@ -1118,7 +1118,7 @@ void CRF::eval(Sequence seq, std::vector<std::string> &output, std::vector<long 
 	output.clear();
 	prob.clear();
 	
-	long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
     long double dummy_prob;
 	vector<size_t> y_seq = viterbiSearch(dummy_prob);
 	assert(y_seq.size() == seq.size());
@@ -1148,7 +1148,7 @@ void CRF::eval(Sequence seq, std::vector<std::string> &output, std::vector<long 
 		string y_seq_s = m_Param.getState().second[y_seq[i]];
 		output.push_back(y_seq_s);
 		
-		size_t outcome = it->label;
+		[[maybe_unused]] size_t outcome = it->label;
 		long double scale_factor = prod_scale2[i] / prod_scale[i+1];
 					
 		long double p =  m_Alpha[MAT2(i, y_seq[i])] * m_Beta[MAT2(i, y_seq[i])] / zval;
@@ -1192,7 +1192,7 @@ bool CRF::test(const std::string& filename, const std::string& outputfile, bool 
 			calculateFactors(seq);
   			forward();
 
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
             long double dummy_prob;
 			vector<size_t> y_seq = viterbiSearch(dummy_prob);
 			assert(y_seq.size() == seq.size());
@@ -1200,7 +1200,7 @@ bool CRF::test(const std::string& filename, const std::string& outputfile, bool 
 			vector<string> reference, hypothesis;
 			
 			Sequence::iterator it = seq.begin();
-			size_t prev_y = m_default_oid;
+			[[maybe_unused]] size_t prev_y = m_default_oid;
 
 			for (size_t i = 0; it != seq.end(); ++it, ++i) {	 /// for each node
 
@@ -1256,6 +1256,8 @@ bool CRF::test(const std::string& filename, const std::string& outputfile, bool 
 	logger->report("  MicroF1 = \t\t%8.3f\n", test_eval.getMicroF1()[2]);
 	//logger->report("  MacroF1 = \t\t%8.3f\n", test_eval.getMacroF1()[2]);
 	test_eval.Print(logger);
+	
+	return true;
 }
 
 

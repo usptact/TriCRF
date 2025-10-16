@@ -48,6 +48,9 @@ void MaxEnt::setPrune(double prune) {
 
 /// Deconstructor
 MaxEnt::~MaxEnt() {
+	// Note: Logger cleanup is handled by RAII in Logger class
+	// We don't delete logger here as it may be shared between instances
+	// or managed externally by the caller
 }
 
 void MaxEnt::clear() {
@@ -489,7 +492,7 @@ bool MaxEnt::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double et
 	int converge = 0;
 
 	/// Training iteration
-    for (size_t niter = 0 ;niter < (int)max_iter; ++niter) {
+    for (size_t niter = 0 ;niter < max_iter; ++niter) {
 		/// Initializing local variables
         timer t2;	///< elapsed time for one iteration
 		m_Param.initializeGradient();	///< gradient vector initialization
@@ -540,7 +543,7 @@ bool MaxEnt::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double et
 		
 		/// Timer for dev set evaluation
 		timer stop_watch;
-		double time_for_dev = 0.0;
+		[[maybe_unused]] double time_for_dev = 0.0;
 		/// for each dev data
         sit = m_DevSet.begin();
 		count_it = m_DevSetCount.begin();
@@ -563,7 +566,7 @@ bool MaxEnt::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double et
 		time_for_dev = stop_watch.elapsed();
 
 		/// applying regularization
-		size_t n_nonzero = 0;
+		[[maybe_unused]] size_t n_nonzero = 0;
 		if (sigma) {
 			if (L1) { /// L1 regularization
 				for (size_t i = 0; i < m_Param.size(); ++i) {
@@ -618,7 +621,7 @@ void MaxEnt::initializeModel() {
 	m_Param.initialize();
 }
 
-bool MaxEnt::pretrain(size_t max_iter, double sigma, bool L1) { 
+bool MaxEnt::pretrain([[maybe_unused]] size_t max_iter, [[maybe_unused]] double sigma, [[maybe_unused]] bool L1) { 
 	return 1; 
 }
 
@@ -687,6 +690,8 @@ bool MaxEnt::test(const std::string& filename, const std::string& outputfile, bo
 	logger->report("  Acc = \t\t%8.3f\n", test_eval.getAccuracy());
 	logger->report("  MicroF1 = \t\t%8.3f\n", test_eval.getMicroF1()[2]);
 	logger->report("  MacroF1 = \t\t%8.3f\n", test_eval.getMacroF1()[2]);
+	
+	return true;
 }
 
 

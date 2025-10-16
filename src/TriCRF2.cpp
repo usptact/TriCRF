@@ -523,7 +523,7 @@ long double TriCRF2::calculateProb(TriSequence& triseq) {
 	long double z = getPartitionZ();
 
     long double seq_prob = 1.0;
-    size_t prev_y = m_default_oid;
+						[[maybe_unused]] size_t prev_y = m_default_oid;
     size_t y;
     for (size_t i=0; i < m_seq_size; i++) {
         if (i < m_seq_size-1) {
@@ -688,16 +688,16 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 	double old_obj = 1e+37;
 	int converge = 0;
 
-	double time_for_factor = 0.0;
-	double time_for_forward = 0.0;
-	double time_for_backward = 0.0;
-	double time_for_evaluation = 0.0;
-	double time_for_estimating = 0.0;
+	[[maybe_unused]] double time_for_factor = 0.0;
+	[[maybe_unused]] double time_for_forward = 0.0;
+	[[maybe_unused]] double time_for_backward = 0.0;
+	[[maybe_unused]] double time_for_evaluation = 0.0;
+	[[maybe_unused]] double time_for_estimating = 0.0;
 	
 	createIndex();
 
 	/// Training iteration
-    for (size_t niter = 0 ;niter < (int)max_iter; ++niter) {
+    for (size_t niter = 0 ;niter < max_iter; ++niter) {
 
 		/// Initializing local variables
         timer t2;	///< elapsed time for one iteration
@@ -721,7 +721,7 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 			stop_watch.restart();
   			forward();
 			time_for_forward += stop_watch.elapsed();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
 
 			////////////////////////////////////////////////////////////////////
 			/// pruning
@@ -751,12 +751,12 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 
 			/// calculate Y sequence
 			long double y_seq_prob = calculateProb(*it);
-            if (!finite((double)y_seq_prob)) {
+            if (!std::isfinite((double)y_seq_prob)) {
                 cerr << "calculateProb:" << y_seq_prob << endl;
             }
 
 			stop_watch.restart();
-			size_t prev_outcome = m_default_oid;
+						[[maybe_unused]] size_t prev_outcome = m_default_oid;
 			vector<size_t> reference, hypothesis;
 			for (size_t i = 0; i < it->seq.size(); ++i) {	 /// for each node in sequence
 				
@@ -855,7 +855,7 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 		dev_eval1.initialize();	///< evaluator intialization
 		dev_eval2.initialize(); 
 		timer stop_watch;
-		double time_for_dev = 0.0;
+		[[maybe_unused]] double time_for_dev = 0.0;
 		/// for each dev data
         it = m_DevSet.begin();
 		count_it = m_DevSetCount.begin();
@@ -863,13 +863,13 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 			double count = *count_it;
 			calculateFactors(*it);
   			forward();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
             long double dummy_prob;
 			size_t max_z;
 			vector<size_t> y_seq = viterbiSearch(max_z, dummy_prob);
 			assert(y_seq.size() == it->seq.size());
 
-			size_t prev_outcome = m_default_oid;
+						[[maybe_unused]] size_t prev_outcome = m_default_oid;
 			vector<size_t> reference, hypothesis;
 			for (size_t i = 0; i < it->seq.size(); ++i) {	 /// for each node in sequence
 				size_t outcome = it->seq[i].label;
@@ -897,7 +897,7 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 		}
 
 		/// applying regularization
-		size_t n_nonzero = 0;
+		[[maybe_unused]] size_t n_nonzero = 0;
 		if (sigma) {
 			if (L1) { /// L1 regularization
 				for (size_t i = 0; i < n_theta; ++i) {
@@ -961,8 +961,8 @@ bool TriCRF2::estimateWithLBFGS(size_t max_iter, double sigma, bool L1, double e
 
 	} ///< for iter
 	
-	delete theta;
-	delete gradient;
+	delete[] theta;
+	delete[] gradient;
 
 	return true;
 
@@ -998,13 +998,13 @@ bool TriCRF2::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta)
 	double old_obj = 1e+37, old_obj2 = 1e+37;
 	int converge = 0, converge2 = 0;
 
-	double time_for_sequence = 0.0;
-	double time_for_topic = 0.0;
+	[[maybe_unused]] double time_for_sequence = 0.0;
+	[[maybe_unused]] double time_for_topic = 0.0;
 	
 	createIndex();
 
 	/// Training iteration
-    for (size_t niter = 0 ;niter < (int)max_iter; ++niter) {
+    for (size_t niter = 0 ;niter < max_iter; ++niter) {
 
 		/// Initializing local variables
         timer t2;	///< elapsed time for one iteration
@@ -1077,7 +1077,7 @@ bool TriCRF2::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta)
 			/// PL for sequence
 			/////////////////////////////////////////////////////////////////////
 			size_t prev_label = m_default_oid;
-			size_t next_label = m_default_oid;
+						[[maybe_unused]] size_t next_label = m_default_oid;
 			vector<size_t> reference2, hypothesis2;
 			for (size_t i = 0; i < it->seq.size(); ++i) {
 
@@ -1147,7 +1147,7 @@ bool TriCRF2::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta)
 		dev_eval1.initialize();	///< evaluator intialization
 		dev_eval2.initialize(); 
 		stop_watch.restart();
-		double time_for_dev = 0.0;
+		[[maybe_unused]] double time_for_dev = 0.0;
 		/// for each dev data
         it = m_DevSet.begin();
 		count_it = m_DevSetCount.begin();
@@ -1155,13 +1155,13 @@ bool TriCRF2::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta)
 			double count = *count_it;
 			calculateFactors(*it);
   			forward();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
             long double dummy_prob;
 			size_t max_z;
 			vector<size_t> y_seq = viterbiSearch(max_z, dummy_prob);
 			assert(y_seq.size() == it->seq.size());
 
-			size_t prev_outcome = m_default_oid;
+						[[maybe_unused]] size_t prev_outcome = m_default_oid;
 			vector<size_t> reference, hypothesis;
 			for (size_t i = 0; i < it->seq.size(); ++i) {	 /// for each node in sequence
 				size_t outcome = it->seq[i].label;
@@ -1190,7 +1190,7 @@ bool TriCRF2::estimateWithPL(size_t max_iter, double sigma, bool L1, double eta)
 		}*/
 
 		/// applying regularization
-		size_t n_nonzero = 0;
+		[[maybe_unused]] size_t n_nonzero = 0;
 		if (sigma) {
 			if (L1) { /// L1 regularization
 				for (size_t i = 0; i < m_ParamTopic.size(); ++i) {
@@ -1293,7 +1293,7 @@ bool TriCRF2::train(size_t max_iter, double sigma, bool L1) {
 		return estimateWithLBFGS(max_iter, sigma, L1);
 }
 
-bool TriCRF2::test(const std::string& filename, const std::string& outputfile, bool confidence) {
+bool TriCRF2::test(const std::string& filename, const std::string& outputfile, [[maybe_unused]] bool confidence) {
 	/// File stream
 	string line;
 	ifstream f(filename.c_str());
@@ -1330,7 +1330,7 @@ bool TriCRF2::test(const std::string& filename, const std::string& outputfile, b
 			/// test
 			calculateFactors(triseq);
   			forward();
-			long double zval = getPartitionZ();
+						[[maybe_unused]] long double zval = getPartitionZ();
             long double dummy_prob;
 
 			////////////////////////////////////////////////////////////////////
@@ -1364,7 +1364,7 @@ bool TriCRF2::test(const std::string& filename, const std::string& outputfile, b
 				out << endl;
 			}
 			
-			size_t prev_y = m_default_oid;
+						[[maybe_unused]] size_t prev_y = m_default_oid;
 			vector<string> reference, hypothesis;
 			StringSequence::iterator it = triseq.seq.begin();
 			for (size_t i = 0; it != triseq.seq.end(); ++i, ++it) {	 /// for each node in sequence
@@ -1428,6 +1428,8 @@ bool TriCRF2::test(const std::string& filename, const std::string& outputfile, b
 	logger->report("  Acc = \t\t%8.3f\n", test_eval2.getAccuracy());
 	logger->report("  MicroF1 = \t\t%8.3f\n", test_eval2.getMicroF1()[2]);
 	logger->report("  MacroF1 = \t\t%8.3f\n", test_eval2.getMacroF1()[2]);
+	
+	return true;
 }
 
 }	///< namespace tricrf

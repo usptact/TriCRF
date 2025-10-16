@@ -334,7 +334,20 @@ namespace tricrf {
         double ftest1 = finit + *stp * dgtest;
 
         if (brackt && ((*stp <= stmin || *stp >= stmax) || infoc == 0)) {
-          *info = 6;
+          // Try to recover by adjusting step size before giving up
+          if (*stp <= stmin) {
+            *stp = stmin * 1.1;
+          } else if (*stp >= stmax) {
+            *stp = stmax * 0.9;
+          }
+          
+          // If still problematic, set error code 6
+          if (*stp <= stmin || *stp >= stmax || infoc == 0) {
+            *info = 6;
+          } else {
+            // Adjusted step size, continue with current iteration
+            *info = 0;
+          }
         }
         if (*stp == lb3_1_stpmax && f <= ftest1 && dg <= dgtest) {
           *info = 5;

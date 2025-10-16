@@ -5,6 +5,80 @@
  * This software is provided under the terms of Modified BSD license: see LICENSE for the detail.
  */
 
+/**
+ * @file MaxEnt.h
+ * @brief Maximum Entropy (Log-Linear) Model for Classification
+ * 
+ * The MaxEnt class implements a maximum entropy (log-linear) model for individual
+ * event classification without sequential dependencies. This serves as the base
+ * class for all other models in the TriCRF framework.
+ * 
+ * @author Minwoo Jeong
+ * @date 2007-2008 (original implementation)
+ * @version 1.0 (CMake conversion 2024)
+ * 
+ * @section Model_Description Model Description
+ * Maximum Entropy models the probability of a label given features using:
+ * P(y|x) = (1/Z(x)) * exp(Σ λᵢ * fᵢ(x,y))
+ * 
+ * Where:
+ * - Z(x) is the normalization constant
+ * - λᵢ are model parameters
+ * - fᵢ(x,y) are feature functions
+ * 
+ * @section Memory_Management Memory Management
+ * - Uses STL containers for automatic memory management
+ * - Logger pointer is managed externally (no automatic cleanup)
+ * - Parameter vectors use std::vector for RAII
+ * 
+ * @section Usage_Examples Usage Examples
+ * 
+ * Basic usage:
+ * @code
+ * MaxEnt model;
+ * model.readTrainData("train.txt");
+ * model.initializeModel();
+ * model.train(100, 2.0, false);  // 100 iterations, L2 regularization
+ * 
+ * // Testing
+ * model.loadModel("model.bin");
+ * model.test("test.txt", "output.txt");
+ * @endcode
+ * 
+ * With custom logger:
+ * @code
+ * Logger logger("training.log", 2);
+ * MaxEnt model(&logger);
+ * model.train(200, 1.0, true);  // L1 regularization
+ * @endcode
+ * 
+ * Configuration file usage:
+ * @code
+ * // config.cfg
+ * model_type = MaxEnt
+ * train_file = data.txt
+ * model_file = model.bin
+ * estimation = LBFGS-L2
+ * l2_prior = 2.0
+ * iter = 100
+ * @endcode
+ * 
+ * @section Data_Format Data Format
+ * Expected format (each example separated by blank line):
+ * @code
+ * LABEL feature1 feature2 feature3
+ * LABEL feature1 feature2 feature3
+ * 
+ * LABEL feature1 feature2 feature3
+ * @endcode
+ * 
+ * @section Performance_Notes Performance Notes
+ * - Fastest training and inference among all models
+ * - No sequential dependencies (each event independent)
+ * - Suitable for tasks where sequence structure is not important
+ * - Memory usage: O(V) where V is vocabulary size
+ */
+
 #ifndef __MAXENT_H__
 #define __MAXENT_H__
 
@@ -18,9 +92,14 @@
 
 namespace tricrf {
 
-/** Maximum Entropy Model.
-	@class MaxEnt
-*/
+/** 
+ * @brief Maximum Entropy Model for Individual Event Classification
+ * 
+ * Base class implementing maximum entropy (log-linear) models.
+ * Models the probability of labels given features without sequential dependencies.
+ * 
+ * @note All other models (CRF, TriCRF1, etc.) inherit from this class
+ */
 class MaxEnt {
 protected:
 	/// Data sets
@@ -50,7 +129,7 @@ protected:
 public:
 	MaxEnt();	 
 	MaxEnt(Logger *logger);
-	~MaxEnt();	
+	virtual ~MaxEnt();	
 
 	/// Data manipulation
 	Event packEvent(std::vector<std::string>& tokens, Parameter* p_Param = NULL, bool test = false);
@@ -62,7 +141,7 @@ public:
 	/// Model 
 	virtual bool loadModel(const std::string& filename);
 	virtual bool saveModel(const std::string& filename);
-	virtual bool averageParam() {};
+	virtual bool averageParam() { return true; };
 
 	/// Testing
 	virtual bool test(const std::string& filename, const std::string& outputfile = "", bool confidence = false);

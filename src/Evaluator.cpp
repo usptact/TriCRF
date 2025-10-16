@@ -314,7 +314,7 @@ double Evaluator::addLikelihood(double p) {
 		t = LOG_ZERO;
 	else
 		t = (double)log(p);
-	if (finite(t))
+	if (std::isfinite(t))
 		loglikelihood -= t;
 	else
 		loglikelihood -= LOG_ZERO;
@@ -328,7 +328,7 @@ double Evaluator::addLikelihood(double p, double w) {
 		t = LOG_ZERO;
 	else
 		t = (double)log(p);
-	if (finite(t))
+	if (std::isfinite(t))
 		loglikelihood -= w * t;
 	else
 		loglikelihood -= w * LOG_ZERO;
@@ -341,6 +341,7 @@ double Evaluator::addLikelihood(double p, double w) {
 */
 double Evaluator::subLoglikelihood(double p) {
 	loglikelihood += p;
+	return loglikelihood;
 }
 
 /** Get loglikelihood.
